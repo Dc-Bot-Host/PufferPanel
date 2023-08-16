@@ -14,6 +14,10 @@ RUN curl -L -o pufferpanel.tar.gz https://git.io/JYJuq && \
     chmod +x pufferpanel && \
     ./pufferpanel auto-install
 
+# Add a user with administrative privileges
+RUN cd /pufferpanel && \
+    ./pufferpanel user add --name ADMIN --password ADMINADMIN --email ADMIN@gmail.com --admin
+
 # Expose ports
 EXPOSE 80 443
 
