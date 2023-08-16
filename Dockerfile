@@ -1,23 +1,21 @@
-# Use an official Ubuntu as the base image
+# Use Ubuntu as the base image
 FROM ubuntu:latest
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y curl unzip apache2 php7.4 php7.4-cli php7.4-mysql php7.4-gd php7.4-curl php7.4-zip php7.4-xml php7.4-mbstring php7.4-tokenizer php7.4-json php7.4-bcmath php7.4-iconv php7.4-fpm php7.4-openssl mariadb-client && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install required dependencies
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y curl wget git python3 && \
-    curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | bash && \
-    apt-get install -y pufferpanel
+# Download and install PufferPanel
+RUN curl -L -o pufferpanel.tar.gz https://git.io/JYJuq && \
+    tar -xzvf pufferpanel.tar.gz && \
+    rm pufferpanel.tar.gz && \
+    cd pufferpanel && \
+    chmod +x pufferpanel && \
+    ./pufferpanel auto-install
 
-# Create a user and set the working directory
-RUN pufferpanel user add --name "admin" --password "admin11" --email "admin@gmail.com" --admin
+# Expose ports
+EXPOSE 80 443
 
-# Expose PufferPanel's ports
-EXPOSE 8080 5657
-
-# Start PufferPanel
-CMD ["pufferpanel", "start"]
-
-# Note: This Dockerfile doesn't handle the systemctl replacement as it's not a standard Docker practice.
-# Running multiple services in a single Docker container can lead to complications and is not recommended.
+# Command to start PufferPanel
+CMD ["/pufferpanel/pufferpanel", "start"]
