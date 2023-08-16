@@ -1,30 +1,23 @@
 # Use an official Ubuntu as the base image
 FROM ubuntu:latest
 
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install required dependencies
-RUN apt-get update && \
-    apt-get install -y curl docker.io
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y curl wget git python3 && \
+    curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | bash && \
+    apt-get install -y pufferpanel
 
-# Create necessary directories
-RUN mkdir -p /var/lib/pufferpanel
+# Create a user and set the working directory
+RUN pufferpanel user add --name "admin" --password "admin11" --email "admin@gmail.com" --admin
 
-# Create a volume for pufferpanel-config
-VOLUME pufferpanel-config:/etc/pufferpanel
-
-# Set up the working directory
-WORKDIR /var/lib/pufferpanel
-
-# Copy the pufferpanel files (assuming they are already built)
-COPY . /var/lib/pufferpanel
-
-# Expose required ports
+# Expose PufferPanel's ports
 EXPOSE 8080 5657
 
-# Start the pufferpanel container
-CMD ["docker", "create", "--name", "pufferpanel", "-p", "8080:8080", "-p", "5657:5657", "-v", "pufferpanel-config:/etc/pufferpanel", "-v", "/var/lib/pufferpanel:/var/lib/pufferpanel", "-v", "/var/run/docker.sock:/var/run/docker.sock", "--restart=on-failure", "pufferpanel/pufferpanel:latest"]
+# Start PufferPanel
+CMD ["pufferpanel", "start"]
 
-# Start the pufferpanel service
-CMD ["docker", "start", "pufferpanel"]
-
-# Execute the pufferpanel command
-CMD ["docker", "exec", "-it", "pufferpanel", "/pufferpanel/pufferpanel", "user", "add"]
+# Note: This Dockerfile doesn't handle the systemctl replacement as it's not a standard Docker practice.
+# Running multiple services in a single Docker container can lead to complications and is not recommended.
