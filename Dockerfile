@@ -7,9 +7,10 @@ WORKDIR /app
 # Copy all files from the local directory into the container
 COPY . /app/
 
-# Install ffmpeg
+# Install required packages
 RUN apt-get update && \
-    apt-get install -y ffmpeg
+    apt-get install -y ffmpeg && \
+    pip install -r requirements.txt
 
 # Make shell scripts executable
 RUN chmod +x alive.sh yt.sh run.sh
@@ -18,4 +19,4 @@ RUN chmod +x alive.sh yt.sh run.sh
 EXPOSE 8080
 
 # Run the Python script when the container starts
-CMD ["python", "s.py"]
+CMD ["python", "main.py"]
