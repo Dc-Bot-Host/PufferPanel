@@ -1,25 +1,14 @@
-# Use the official Ubuntu base image
-FROM ubuntu:jammy
+# Use the official Python base image
+FROM python:3.9
 
-# Install required packages
-RUN apt-get update && \
-    apt-get install -y curl sudo
+# Create and set the working directory inside the container
+WORKDIR /app
 
-# Install PufferPanel repository
-RUN curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | sudo os=ubuntu dist=jammy bash
+# Copy all files from the local directory into the container
+COPY . /app/
 
-# Install PufferPanel package
-RUN apt-get update && \
-    apt-get install -y pufferpanel
+# Expose port 8080
+EXPOSE 8080
 
-# Add a PufferPanel user
-RUN sudo pufferpanel user add
-
-# Expose PufferPanel ports (you might need to adjust these based on your configuration)
-EXPOSE 8080 5656
-
-# Set the PufferPanel environment to development
-ENV PUFFERPANEL_ENV=development
-
-# Start PufferPanel service directly
-CMD ["pufferpanel", "debug"]
+# Run the Python script when the container starts
+CMD ["python", "my_script.py"]
