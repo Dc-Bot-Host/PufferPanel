@@ -15,11 +15,11 @@ RUN apt-get update && \
 # Add a PufferPanel user
 RUN sudo pufferpanel user add
 
-# Enable and start PufferPanel service
-RUN sudo systemctl enable --now pufferpanel
+# Expose PufferPanel ports (you might need to adjust these based on your configuration)
+EXPOSE 8080 5656
 
 # Set the PufferPanel environment to development
 ENV PUFFERPANEL_ENV=development
 
-# Output PufferPanel debug log to console
-CMD ["sh", "-c", "pufferpanel debug"]
+# Start PufferPanel service directly
+CMD ["pufferpanel", "debug"]
