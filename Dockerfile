@@ -1,25 +1,25 @@
-# Use Ubuntu as the base image
-FROM ubuntu:latest
+# Use the official Ubuntu base image
+FROM ubuntu:jammy
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y curl unzip apache2 php7.4 php7.4-cli php7.4-mysql php7.4-gd php7.4-curl php7.4-zip php7.4-xml php7.4-mbstring php7.4-tokenizer php7.4-json php7.4-bcmath php7.4-iconv php7.4-fpm php7.4-openssl mariadb-client && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y curl sudo
 
-# Download and install PufferPanel
-RUN curl -L -o pufferpanel.tar.gz https://git.io/JYJuq && \
-    tar -xzvf pufferpanel.tar.gz && \
-    rm pufferpanel.tar.gz && \
-    cd pufferpanel && \
-    chmod +x pufferpanel && \
-    ./pufferpanel auto-install
+# Install PufferPanel repository
+RUN curl -s https://packagecloud.io/install/repositories/pufferpanel/pufferpanel/script.deb.sh | sudo os=ubuntu dist=jammy bash
 
-# Add a user with administrative privileges
-RUN cd /pufferpanel && \
-    ./pufferpanel user add --name ADMIN --password ADMINADMIN --email ADMIN@gmail.com --admin
+# Install PufferPanel package
+RUN apt-get update && \
+    apt-get install -y pufferpanel
 
-# Expose ports
-EXPOSE 80 443
+# Add a PufferPanel user
+RUN sudo pufferpanel user add
 
-# Command to start PufferPanel
-CMD ["/pufferpanel/pufferpanel", "start"]
+# Enable and start PufferPanel service
+RUN sudo systemctl enable --now pufferpanel
+
+# Set the PufferPanel environment to development
+ENV PUFFERPANEL_ENV=development
+
+# Output PufferPanel debug log to console
+CMD ["sh", "-c", "pufferpanel debug"]
